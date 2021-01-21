@@ -5,7 +5,7 @@ This small project uses spring boot to upload and search files
 
 #### Upload files
 
-![Example screenshot](./image/upload file.GIF)
+![Example screenshot](./image/upload file.GIF?raw=true)
 
 
 
