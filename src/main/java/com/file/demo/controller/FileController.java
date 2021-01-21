@@ -14,6 +14,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -48,27 +50,32 @@ public class FileController {
      * if the file is found, the file name, file type and download url will be returned.
      */
     @GetMapping("/searchFile")
-    public ResponseEntity<ResponseFile> searchFileByName(@RequestParam(value = "fileName") String fileName)
+    public ResponseEntity<List<ResponseFile>> searchFileByName(@RequestParam(value = "fileName") String fileName)
     {
-        MyFile file=fileService.getFile(fileName);
-        ResponseFile responseFile=null;
+        List<MyFile> files=fileService.getFile(fileName);
+        List<ResponseFile> responseFiles=null;
         //check if a file has been found
-        if(file==null || file.getFileName().isEmpty())
+        if(files.size()==0)
         {
-            responseFile=new ResponseFile();
-            responseFile.setMessage("No file matches");
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(responseFile);
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(responseFiles);
         }
         //a file has been found
         else
         {
-            //get the downloading url
-            String downloadURL= ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/static/uploadfile")
-                    .path(file.getFileName())
-                    .toUriString();
-            responseFile=new ResponseFile(file.getFileName(),downloadURL,file.getFileType(),"File matches");
-            return ResponseEntity.status(HttpStatus.OK).body(responseFile);
+             responseFiles=files.stream().map(file ->{
+                //get the downloading url
+                String downloadURL= ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/static/uploadfile")
+                        .path(file.getFileName())
+                        .toUriString();
+                return new ResponseFile(
+                        file.getFileName(),
+                        downloadURL,
+                        file.getFileType(),
+                        "File matches"
+                );
+            }).collect(Collectors.toList());
+            return ResponseEntity.status(HttpStatus.OK).body(responseFiles);
         }
     }
 }

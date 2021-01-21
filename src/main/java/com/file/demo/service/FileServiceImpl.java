@@ -4,13 +4,17 @@ import com.file.demo.entity.MyFile;
 import com.file.demo.entity.UploadedFile;
 import com.file.demo.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -72,8 +76,20 @@ public class FileServiceImpl implements FileService{
      * @return
      */
     @Override
-    public MyFile getFile(String name) {
-      return  fileRepository.getFileByName(name);
+    public List<MyFile> getFile(String name) {
+        //create search parameters
+        Specification<MyFile> search=new Specification<MyFile>() {
+            @Override
+            public Predicate toPredicate(Root<MyFile> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
+                //get the search attribute
+                Path<Object> fileName = root.get("fileName");
+                //create the search condition
+                Predicate p=cb.like(fileName.as(String.class),"%"+name+"%");
+                return p;
+            }
+        };
+        List<MyFile> files=fileRepository.findAll(search);
+      return  files;
     }
 
 }
