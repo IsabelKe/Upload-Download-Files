@@ -18,5 +18,4 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadedFile {
     private MultipartFile file;
     private Integer userId;
-    private String fileType;
 }

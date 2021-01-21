@@ -23,11 +23,6 @@ public class FileController {
     @Autowired
     private FileService fileService;
 
-    @GetMapping(value = "/file")
-    public String file() {
-        return "file";
-    }
-
     /**
      * upload file
      * @param uploadFile the file will be uploaded
